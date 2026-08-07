@@ -1,14 +1,25 @@
-site_name: Logística Marketplace — Arquitetura
-site_description: Arquitetura de referência para uma plataforma de logística de marketplace orientada a eventos.
+site_name: Logistics Marketplace — Architecture
+site_description: Reference architecture for an event-driven marketplace logistics platform.
 site_author: Leandro Flora
 site_url: https://leandrosflora.github.io/logistica-marketplace-demo-arch/
 repo_name: leandrosflora/logistica-marketplace-demo-arch
 repo_url: https://github.com/leandrosflora/logistica-marketplace-demo-arch
 edit_uri: edit/main/docs/
 
+# Keep the repository source layout intact while the MkDocs hook stages
+# translated Portuguese pages as *.pt.md so English can remain the default
+# language at the site root.
+hooks:
+  - scripts/mkdocs_english_default.py
+
+# MkDocs builds from a temporary i18n staging directory created by the hook.
+# Keep the original docs tree under live-reload observation.
+watch:
+  - docs
+
 theme:
   name: material
-  language: pt-BR
+  language: en
   icon:
     logo: material/truck-fast-outline
     repo: fontawesome/brands/github
@@ -19,16 +30,15 @@ theme:
       accent: amber
       toggle:
         icon: material/weather-night
-        name: Usar tema escuro
+        name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: deep purple
       accent: amber
       toggle:
         icon: material/weather-sunny
-        name: Usar tema claro
+        name: Switch to light mode
   features:
-    - navigation.instant
     - navigation.tracking
     - navigation.tabs
     - navigation.sections
@@ -39,7 +49,89 @@ theme:
 
 plugins:
   - search:
-      lang: pt
+      lang:
+        - en
+        - pt
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: pt
+          name: Português (Brasil)
+          build: true
+          site_name: Logística Marketplace — Arquitetura
+          site_description: Arquitetura de referência para uma plataforma de logística de marketplace orientada a eventos.
+          nav:
+            - Início: index.md
+            - Arquitetura:
+                - Mapa de serviços: contracts/services-map.md
+                - Dados e ownership: contracts/data-stores.md
+                - Segurança: security/security-architecture.md
+                - Glossário: glossary/domain-glossary.md
+                - Diagramas C4:
+                    - Contexto: c4/logistica-envios-context.svg
+                    - Containers: c4/logistica-envios-container.svg
+                    - Checkout: c4/logistica-envios-checkout-domain-level3.svg
+                    - Pedido: c4/logistica-envios-order-domain-level3.svg
+                    - Saga de pedido: c4/logistica-envios-order-saga-level3.svg
+                    - Promessa de entrega: c4/logistica-envios-shipping-promise-domain-level3.svg
+                    - Entrega: c4/logistica-envios-shipment-domain-level3.svg
+                    - Rastreio: c4/logistica-envios-tracking-domain-level3.svg
+            - Contratos:
+                - Visão geral: contracts/README.md
+                - APIs REST: contracts/api-contract-validation.md
+                - OpenAPI: contracts/logistica-envios-apis.openapi.yaml
+                - Eventos Kafka: contracts/kafka-events.md
+                - Governança de schemas: contracts/kafka-schema-governance.md
+            - Serviços:
+                - Product Search: services/product-search-service.md
+                - Product Catalog: services/product-catalog-service.md
+                - Checkout: services/checkout-service.md
+                - Shipping Promise: services/shipping-promise-service.md
+                - Shipping Pricing: services/shipping-pricing-service.md
+                - Inventory: services/inventory-service.md
+                - Fulfillment Center: services/fulfillment-center-service.md
+                - Routing: services/routing-service.md
+                - Carrier: services/carrier-service.md
+                - Order: services/order-service.md
+                - Payment: services/payment-service.md
+                - Shipment: services/shipment-service.md
+                - Tracking: services/tracking-service.md
+                - Notification: services/notification-service.md
+                - Audit: services/audit-service.md
+                - Order Visibility: services/order-visibility-service.md
+            - Jornadas:
+                - Visão geral: sequence-diagrams/README.md
+                - Jornada principal: sequence-diagrams/00-overview-shipping-journey-happy-path.svg
+                - Busca e cotação: sequence-diagrams/01-product-search-and-quote-happy-path.svg
+                - Confirmação do checkout: sequence-diagrams/02-checkout-confirmation-and-order-created.svg
+                - Saga de reservas: sequence-diagrams/03-order-saga-reservations-and-shipment-happy-path.svg
+                - Rastreio e notificação: sequence-diagrams/04-tracking-and-notification-happy-path.svg
+            - Decisões:
+                - EDA: adr/0001-use-event-driven-architecture.md
+                - Saga Orchestrator: adr/0002-saga-orchestrator-pattern.md
+                - Arquitetura Hexagonal: adr/0003-hexagonal-clean-architecture.md
+                - Versionamento Kafka: adr/0004-kafka-schema-versioning.md
+                - Idempotência: adr/0005-idempotency-strategy.md
+                - Observabilidade: adr/0006-observability-stack.md
+                - Tópicos da saga: adr/0007-order-service-internal-saga-topics.md
+            - Operação:
+                - CI/CD: devops/ci-cd.md
+                - Pipeline: cicd/pipeline.md
+                - Deployment: devops/deployment.md
+                - Ambientes: devops/environments.md
+                - Observabilidade: devops/observability.md
+                - Segurança: devops/security.md
+                - Runbooks:
+                    - Kafka local E2E: runbooks/kafka-local-e2e.md
+                    - Observabilidade local: runbooks/observability-local.md
+                    - Order Visibility local: runbooks/order-visibility-local.md
 
 markdown_extensions:
   - admonition
@@ -57,70 +149,29 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 
+# The English root exposes only pages that already have real English content.
+# Portuguese keeps the complete documentation through the per-language nav above.
 nav:
-  - Início: index.md
-  - Arquitetura:
-      - Mapa de serviços: contracts/services-map.md
-      - Dados e ownership: contracts/data-stores.md
-      - Segurança: security/security-architecture.md
-      - Glossário: glossary/domain-glossary.md
-      - Diagramas C4:
-          - Contexto: c4/logistica-envios-context.svg
+  - Home: index.md
+  - Architecture:
+      - Service map: contracts/services-map.md
+      - Data and ownership: contracts/data-stores.md
+      - Security: security/security-architecture.md
+      - Glossary: glossary/domain-glossary.md
+      - C4 diagrams:
+          - Context: c4/logistica-envios-context.svg
           - Containers: c4/logistica-envios-container.svg
           - Checkout: c4/logistica-envios-checkout-domain-level3.svg
-          - Pedido: c4/logistica-envios-order-domain-level3.svg
-          - Saga de pedido: c4/logistica-envios-order-saga-level3.svg
-          - Promessa de entrega: c4/logistica-envios-shipping-promise-domain-level3.svg
-          - Entrega: c4/logistica-envios-shipment-domain-level3.svg
-          - Rastreio: c4/logistica-envios-tracking-domain-level3.svg
-  - Contratos:
-      - Visão geral: contracts/README.md
-      - APIs REST: contracts/api-contract-validation.md
+          - Order: c4/logistica-envios-order-domain-level3.svg
+          - Order saga: c4/logistica-envios-order-saga-level3.svg
+          - Shipping promise: c4/logistica-envios-shipping-promise-domain-level3.svg
+          - Shipment: c4/logistica-envios-shipment-domain-level3.svg
+          - Tracking: c4/logistica-envios-tracking-domain-level3.svg
+  - Contracts:
+      - Overview: contracts/README.md
+      - REST APIs: contracts/api-contract-validation.md
       - OpenAPI: contracts/logistica-envios-apis.openapi.yaml
-      - Eventos Kafka: contracts/kafka-events.md
-      - Governança de schemas: contracts/kafka-schema-governance.md
-  - Serviços:
-      - Product Search: services/product-search-service.md
-      - Product Catalog: services/product-catalog-service.md
-      - Checkout: services/checkout-service.md
-      - Shipping Promise: services/shipping-promise-service.md
-      - Shipping Pricing: services/shipping-pricing-service.md
-      - Inventory: services/inventory-service.md
-      - Fulfillment Center: services/fulfillment-center-service.md
-      - Routing: services/routing-service.md
-      - Carrier: services/carrier-service.md
-      - Order: services/order-service.md
-      - Payment: services/payment-service.md
-      - Shipment: services/shipment-service.md
-      - Tracking: services/tracking-service.md
-      - Notification: services/notification-service.md
-      - Audit: services/audit-service.md
-      - Order Visibility: services/order-visibility-service.md
-  - Jornadas:
-      - Visão geral: sequence-diagrams/README.md
-      - Jornada principal: sequence-diagrams/00-overview-shipping-journey-happy-path.svg
-      - Busca e cotação: sequence-diagrams/01-product-search-and-quote-happy-path.svg
-      - Confirmação do checkout: sequence-diagrams/02-checkout-confirmation-and-order-created.svg
-      - Saga de reservas: sequence-diagrams/03-order-saga-reservations-and-shipment-happy-path.svg
-      - Rastreio e notificação: sequence-diagrams/04-tracking-and-notification-happy-path.svg
-  - Decisões:
-      - EDA: adr/0001-use-event-driven-architecture.md
-      - Saga Orchestrator: adr/0002-saga-orchestrator-pattern.md
-      - Arquitetura Hexagonal: adr/0003-hexagonal-clean-architecture.md
-      - Versionamento Kafka: adr/0004-kafka-schema-versioning.md
-      - Idempotência: adr/0005-idempotency-strategy.md
-      - Observabilidade: adr/0006-observability-stack.md
-      - Tópicos da saga: adr/0007-order-service-internal-saga-topics.md
-  - Operação:
-      - CI/CD: devops/ci-cd.md
-      - Pipeline: cicd/pipeline.md
-      - Deployment: devops/deployment.md
-      - Ambientes: devops/environments.md
-      - Observabilidade: devops/observability.md
-      - Segurança: devops/security.md
-      - Runbooks:
-          - Kafka local E2E: runbooks/kafka-local-e2e.md
-          - Observabilidade local: runbooks/observability-local.md
-          - Order Visibility local: runbooks/order-visibility-local.md
+      - Kafka events: contracts/kafka-events.md
+      - Schema governance: contracts/kafka-schema-governance.md
 
 copyright: Copyright &copy; 2026 Leandro Flora — Apache-2.0
