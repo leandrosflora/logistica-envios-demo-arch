@@ -2,12 +2,12 @@
 """Stage MkDocs sources so English is the default i18n language.
 
 The repository keeps Portuguese pages as unsuffixed ``*.md`` files and English
-translations as ``*.en.md`` files. ``mkdocs-static-i18n`` expects the
-non-default Portuguese pages to use the ``*.pt.md`` suffix when English is the
-default language.
+translations as ``*.en.md`` files. When an English translation exists, this
+hook exposes the original Portuguese source as ``*.pt.md`` in a temporary docs
+tree expected by ``mkdocs-static-i18n``.
 
-This hook preserves the repository layout by creating a temporary docs tree for
-MkDocs builds, where Portuguese Markdown files are exposed as ``*.pt.md``.
+Pages that do not yet have an English translation remain unsuffixed so they stay
+reachable during incremental migration instead of producing broken links.
 """
 
 from __future__ import annotations
@@ -33,6 +33,10 @@ def _prepare_stage() -> None:
 
     for page in sorted(_STAGE_DOCS_DIR.rglob("*.md")):
         if page.name.endswith((".en.md", ".pt.md")):
+            continue
+
+        english_page = page.with_name(f"{page.stem}.en.md")
+        if not english_page.exists():
             continue
 
         portuguese_page = page.with_name(f"{page.stem}.pt.md")
